@@ -208,29 +208,45 @@ export default function Board({
   );
 
   const customArrows: Arrow[] = useMemo(() => {
-    const bestMove = position?.lastEval?.bestMove;
-    const moveClassification = position?.eval?.moveClassification;
+    if (!showBestMoveArrow) return [];
 
+    const arrows: Arrow[] = [];
+
+    // Engine's best move in the current position (updates live while Pea
+    // searches).
+    const currentBestMove = position?.eval?.lines?.[0]?.pv?.[0];
+    if (currentBestMove) {
+      arrows.push([
+        currentBestMove.slice(0, 2),
+        currentBestMove.slice(2, 4),
+        tinycolor(CLASSIFICATION_COLORS[MoveClassification.Perfect])
+          .spin(-boardHue)
+          .setAlpha(0.8)
+          .toRgbString(),
+      ] as Arrow);
+    }
+
+    // What should have been played instead of the last move, when that move
+    // wasn't the best one.
+    const lastBestMove = position?.lastEval?.bestMove;
+    const moveClassification = position?.eval?.moveClassification;
     if (
-      bestMove &&
-      showBestMoveArrow &&
+      lastBestMove &&
       moveClassification !== MoveClassification.Best &&
       moveClassification !== MoveClassification.Opening &&
       moveClassification !== MoveClassification.Forced &&
       moveClassification !== MoveClassification.Perfect
     ) {
-      const bestMoveArrow = [
-        bestMove.slice(0, 2),
-        bestMove.slice(2, 4),
+      arrows.push([
+        lastBestMove.slice(0, 2),
+        lastBestMove.slice(2, 4),
         tinycolor(CLASSIFICATION_COLORS[MoveClassification.Best])
           .spin(-boardHue)
           .toHexString(),
-      ] as Arrow;
-
-      return [bestMoveArrow];
+      ] as Arrow);
     }
 
-    return [];
+    return arrows;
   }, [position, showBestMoveArrow, boardHue]);
 
   const SquareRenderer: CustomSquareRenderer = useMemo(() => {
