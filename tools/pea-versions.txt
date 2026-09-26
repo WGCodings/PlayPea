@@ -1,0 +1,12 @@
+# Pea release tags to build (one per line). Also add new versions to
+# src/lib/engine/peaVersions.ts so they show up in the UI.
+v1.0
+v2.0
+v3.0
+v4.0
+v5.0
+v6.0
+v7.0
+v8.0
+v9.0
+v9.1
