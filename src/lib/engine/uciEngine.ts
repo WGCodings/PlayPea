@@ -370,18 +370,20 @@ export class UciEngine {
     return parseEvaluationResults(results, fen);
   }
 
+  // positionCommand: a full UCI "position ..." command, including the moves
+  // played so far (see getUciPositionCommand).
   public async getEngineNextMove(
-    fen: string,
+    positionCommand: string,
     moveTimeMs: number
   ): Promise<string | undefined> {
     this.throwErrorIfNotReady();
 
     await this.stopAllCurrentJobs();
 
-    logMessageIfLocalhost(`Evaluating position: ${fen}`);
+    logMessageIfLocalhost(`Evaluating position: ${positionCommand}`);
 
     const results = await this.sendCommands(
-      [`position fen ${fen}`, `go movetime ${Math.round(moveTimeMs)}`],
+      [positionCommand, `go movetime ${Math.round(moveTimeMs)}`],
       "bestmove"
     );
 

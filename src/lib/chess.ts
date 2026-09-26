@@ -1,6 +1,6 @@
 import { EvaluateGameParams, LineEval, PositionEval } from "@/types/eval";
 import { Game, Player } from "@/types/game";
-import { Chess, PieceSymbol, Square } from "chess.js";
+import { Chess, DEFAULT_POSITION, PieceSymbol, Square } from "chess.js";
 import { getPositionWinPercentage } from "./engine/helpers/winPercentage";
 import { Color } from "@/types/enums";
 import { Piece } from "react-chessboard/dist/chessboard/types";
@@ -16,6 +16,24 @@ export const getEvaluateGameParams = (game: Chess): EvaluateGameParams => {
   );
 
   return { fens, uciMoves };
+};
+
+// UCI "position" command with the full move history, so the engine can see
+// repetitions (a bare "position fen" would hide them).
+export const getUciPositionCommand = (game: Chess): string => {
+  const history = game.history({ verbose: true });
+  const startFen = history.length ? history[0].before : game.fen();
+  const base =
+    startFen === DEFAULT_POSITION
+      ? "position startpos"
+      : `position fen ${startFen}`;
+
+  if (!history.length) return base;
+
+  const uciMoves = history.map(
+    (move) => move.from + move.to + (move.promotion || "")
+  );
+  return `${base} moves ${uciMoves.join(" ")}`;
 };
 
 export const getGameFromPgn = (pgn: string): Chess => {

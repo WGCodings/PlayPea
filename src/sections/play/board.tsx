@@ -11,7 +11,7 @@ import { useChessActions } from "@/hooks/useChessActions";
 import { useEffect, useMemo } from "react";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { useEngine } from "@/hooks/useEngine";
-import { uciMoveParams } from "@/lib/chess";
+import { getUciPositionCommand, uciMoveParams } from "@/lib/chess";
 import Board from "@/components/board";
 import { useGameData } from "@/hooks/useGameData";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -44,7 +44,10 @@ export default function BoardContainer() {
 
       // Don't reply instantly, even with a very short thinking time.
       const timePromise = sleep(500);
-      const move = await engine.getEngineNextMove(gameFen, engineMoveTime);
+      const move = await engine.getEngineNextMove(
+        getUciPositionCommand(game),
+        engineMoveTime
+      );
       await timePromise;
 
       if (move) playMove(uciMoveParams(move));
