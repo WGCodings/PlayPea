@@ -8,23 +8,33 @@ import {
   GridActionsCellItem,
   GridRowId,
 } from "@mui/x-data-grid";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { blue, red } from "@mui/material/colors";
 import LoadGameButton from "@/sections/loadGame/loadGameButton";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { useRouter } from "next/router";
 import { PageTitle } from "@/components/pageTitle";
+import { DATABASE_ENABLED } from "@/constants";
 
 const gridLocaleText: GridLocaleText = {
   ...GRID_DEFAULT_LOCALE_TEXT,
   noRowsLabel: "No games found",
 };
 
-export default function GameDatabase() {
-  const { games, deleteGame } = useGameDatabase(true);
+export default function GameDatabasePage() {
   const router = useRouter();
 
-  console.log(games);
+  useEffect(() => {
+    if (!DATABASE_ENABLED) router.replace("/");
+  }, [router]);
+
+  if (!DATABASE_ENABLED) return null;
+  return <GameDatabase />;
+}
+
+function GameDatabase() {
+  const { games, deleteGame } = useGameDatabase(true);
+  const router = useRouter();
 
   const handleDeleteGameRow = useCallback(
     (id: GridRowId) => async () => {
@@ -178,7 +188,7 @@ export default function GameDatabase() {
       gap={4}
       marginTop={6}
     >
-      <PageTitle title="Chesskit Game Database" />
+      <PageTitle title="PlayPea - Game Database" />
 
       <Grid container justifyContent="center" alignItems="center" size={12}>
         <LoadGameButton />

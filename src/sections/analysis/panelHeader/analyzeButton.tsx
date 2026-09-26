@@ -14,7 +14,6 @@ import { getEvaluateGameParams } from "@/lib/chess";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { LoadingButton } from "@mui/lab";
 import { useEngine } from "@/hooks/useEngine";
-import { logAnalyticsEvent } from "@/lib/firebase";
 import { SavedEvals } from "@/types/eval";
 import { useEffect, useCallback } from "react";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -77,13 +76,6 @@ export default function AnalyzeButton() {
       ...prev,
       ...gameSavedEvals,
     }));
-
-    logAnalyticsEvent("analyze_game", {
-      engine: engineName,
-      depth: engineDepth,
-      multiPv: engineMultiPv,
-      nbPositions: params.fens.length,
-    });
   }, [
     engine,
     engineName,

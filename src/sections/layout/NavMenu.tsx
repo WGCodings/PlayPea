@@ -10,6 +10,7 @@ import {
   ListItemText,
   Toolbar,
 } from "@mui/material";
+import { DATABASE_ENABLED } from "@/constants";
 
 const MenuOptions = [
   { text: "Play", icon: "streamline:chess-pawn", href: "/play" },
@@ -19,7 +20,7 @@ const MenuOptions = [
     icon: "streamline:database",
     href: "/database",
   },
-];
+].filter(({ href }) => DATABASE_ENABLED || href !== "/database");
 
 interface Props {
   open: boolean;

@@ -17,7 +17,7 @@ export const showPlayerMoveIconAtom = atom(true);
 
 export const engineNameAtom = atom<EngineName>(DEFAULT_ENGINE);
 export const engineDepthAtom = atom(14);
-export const engineMultiPvAtom = atom(3);
+export const engineMultiPvAtom = atom(1);
 export const engineWorkersNbAtom = atomWithStorage(
   "engineWorkersNb",
   getRecommendedWorkersNb()
@@ -25,3 +25,9 @@ export const engineWorkersNbAtom = atomWithStorage(
 export const evaluationProgressAtom = atom(0);
 
 export const savedEvalsAtom = atom<SavedEvals>({});
+
+// A finished game handed over from the Play page, loaded by the analysis page.
+export const pendingAnalysisGameAtom = atom<{
+  pgn: string;
+  orientation: boolean;
+} | null>(null);

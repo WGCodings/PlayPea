@@ -1,6 +1,6 @@
 {
-  "name": "Chesskit",
-  "short_name": "Chesskit",
+  "name": "PlayPea",
+  "short_name": "PlayPea",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#5d9948",
+  "theme_color": "#6DA544",
   "background_color": "#ffffff",
   "display": "standalone"
 }

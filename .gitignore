@@ -21,3 +21,7 @@ tsconfig.tsbuildinfo
 .cdk.staging
 cdk.out
 cdk.context.json
+
+# Pea engine build workspace (tools/build-engines.sh)
+.pea-src
+.pea-target

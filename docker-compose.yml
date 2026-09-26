@@ -1,0 +1,21 @@
+# PlayPea on the Pi. The container only serves static files; engines run in
+# the visitor's browser. Caddy (~/Monitoring) terminates HTTPS for
+# playpea.wgcodings.com and reaches this container over the shared `edge`
+# network, so no ports are published here.
+#
+#   docker compose up -d --build
+services:
+  playpea:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: playpea:latest
+    container_name: playpea
+    restart: unless-stopped
+    networks: [edge]
+    # Plenty for nginx serving static files.
+    mem_limit: 64m
+
+networks:
+  edge:
+    external: true

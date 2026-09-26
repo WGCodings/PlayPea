@@ -3,3 +3,7 @@ node_modules
 .gitignore
 *.md
 out
+.next
+.pea-src
+.pea-target
+tools

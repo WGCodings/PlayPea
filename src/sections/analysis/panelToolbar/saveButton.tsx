@@ -4,8 +4,14 @@ import { useRouter } from "next/router";
 import { boardAtom, gameAtom, gameEvalAtom } from "../states";
 import { getGameToSave } from "@/lib/chess";
 import { ToolbarButton } from "@/components/ToolbarButton";
+import { DATABASE_ENABLED } from "@/constants";
 
 export default function SaveButton() {
+  if (!DATABASE_ENABLED) return null;
+  return <SaveGameButton />;
+}
+
+function SaveGameButton() {
   const game = useAtomValue(gameAtom);
   const board = useAtomValue(boardAtom);
   const gameEval = useAtomValue(gameEvalAtom);

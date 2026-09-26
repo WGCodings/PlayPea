@@ -1,7 +1,8 @@
 import { EngineName, MoveClassification } from "./types/enums";
+import { PEA_VERSIONS } from "./data/peaVersions";
 
-export const MAIN_THEME_COLOR = "#3B9AC6";
-export const LINEAR_PROGRESS_BAR_COLOR = "#3B9AC6";
+export const MAIN_THEME_COLOR = "#6DA544";
+export const LINEAR_PROGRESS_BAR_COLOR = "#6DA544";
 
 export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Opening]: "#dbac86",
@@ -16,69 +17,33 @@ export const CLASSIFICATION_COLORS: Record<MoveClassification, string> = {
   [MoveClassification.Blunder]: "#df5353",
 };
 
-export const DEFAULT_ENGINE: EngineName = EngineName.Stockfish18Lite;
-export const STRONGEST_ENGINE: EngineName = EngineName.Stockfish18;
+export const DEFAULT_ENGINE: EngineName = "v9.1";
+export const STRONGEST_ENGINE: EngineName = "v9.1";
 
 export const ENGINE_LABELS: Record<
   EngineName,
-  { small: string; full: string; sizeMb: number }
-> = {
-  [EngineName.Stockfish18]: {
-    full: "Stockfish 18 (108MB)",
-    small: "Stockfish 18",
-    sizeMb: 108,
-  },
-  [EngineName.Stockfish18Lite]: {
-    full: "Stockfish 18 Lite (7MB)",
-    small: "Stockfish 18 Lite",
-    sizeMb: 7,
-  },
-  [EngineName.Stockfish17_1]: {
-    full: "Stockfish 17.1 (77MB)",
-    small: "Stockfish 17.1",
-    sizeMb: 77,
-  },
-  [EngineName.Stockfish17_1Lite]: {
-    full: "Stockfish 17.1 Lite (7MB)",
-    small: "Stockfish 17.1 Lite",
-    sizeMb: 7,
-  },
-  [EngineName.Stockfish17]: {
-    full: "Stockfish 17 (75MB)",
-    small: "Stockfish 17",
-    sizeMb: 75,
-  },
-  [EngineName.Stockfish17Lite]: {
-    full: "Stockfish 17 Lite (6MB)",
-    small: "Stockfish 17 Lite",
-    sizeMb: 6,
-  },
-  [EngineName.Stockfish16_1]: {
-    full: "Stockfish 16.1 (64MB)",
-    small: "Stockfish 16.1",
-    sizeMb: 64,
-  },
-  [EngineName.Stockfish16_1Lite]: {
-    full: "Stockfish 16.1 Lite (6MB)",
-    small: "Stockfish 16.1 Lite",
-    sizeMb: 6,
-  },
-  [EngineName.Stockfish16NNUE]: {
-    full: "Stockfish 16 (40MB)",
-    small: "Stockfish 16",
-    sizeMb: 40,
-  },
-  [EngineName.Stockfish16]: {
-    full: "Stockfish 16 Lite (HCE)",
-    small: "Stockfish 16 Lite",
-    sizeMb: 2,
-  },
-  [EngineName.Stockfish11]: {
-    full: "Stockfish 11 (HCE)",
-    small: "Stockfish 11",
-    sizeMb: 2,
-  },
-};
+  { small: string; full: string; sizeMb: number; elo?: number }
+> = Object.fromEntries(
+  PEA_VERSIONS.map((v) => [
+    v.id,
+    {
+      small: `Pea ${v.id}`,
+      full: `Pea ${v.id} (${v.eloLabel} Elo)`,
+      sizeMb: v.sizeMb,
+      elo: v.elo,
+    },
+  ])
+) as Record<
+  EngineName,
+  { small: string; full: string; sizeMb: number; elo?: number }
+>;
+
+// Default thinking time per move when playing against Pea (ms).
+export const DEFAULT_MOVE_TIME_MS = 1000;
+
+// The game database (browser IndexedDB) is hidden for now. Flip this to bring
+// back the Database page and the save button.
+export const DATABASE_ENABLED = false;
 
 export const PIECE_SETS = [
   "alpha",

@@ -22,6 +22,7 @@ export interface Props {
   marksFilter?: number;
   step?: number;
   infoContent?: TypographyProps["children"];
+  marksLabel?: (value: number) => string;
 }
 
 export default function Slider({
@@ -34,6 +35,7 @@ export default function Slider({
   marksFilter,
   step = 1,
   infoContent,
+  marksLabel,
 }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -99,7 +101,7 @@ export default function Slider({
           marksFilter
             ? Array.from({ length: max - min + 1 }, (_, i) => ({
                 value: i + min,
-                label: `${i + min}`,
+                label: marksLabel ? marksLabel(i + min) : `${i + min}`,
               })).filter((_, i) => i % marksFilter === 0)
             : undefined
         }

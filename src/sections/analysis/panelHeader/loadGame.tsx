@@ -7,9 +7,10 @@ import {
   evaluationProgressAtom,
   gameAtom,
   gameEvalAtom,
+  pendingAnalysisGameAtom,
 } from "../states";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Chess } from "chess.js";
 import { useRouter } from "next/router";
 import { GameEval } from "@/types/eval";
@@ -24,6 +25,7 @@ export default function LoadGame() {
   const setEval = useSetAtom(gameEvalAtom);
   const setBoardOrientation = useSetAtom(boardOrientationAtom);
   const evaluationProgress = useAtomValue(evaluationProgressAtom);
+  const [pendingGame, setPendingGame] = useAtom(pendingAnalysisGameAtom);
 
   const joinedGameHistory = useMemo(() => game.history().join(), [game]);
 
@@ -44,6 +46,12 @@ export default function LoadGame() {
   const { lichessGameId, orientation: orientationParam } = router.query;
 
   useEffect(() => {
+    if (!pendingGame) return;
+    resetAndSetGamePgn(pendingGame.pgn, pendingGame.orientation);
+    setPendingGame(null);
+  }, [pendingGame, setPendingGame, resetAndSetGamePgn]);
+
+  useEffect(() => {
     const handleLichess = async (id: string) => {
       const res = await fetchLichessGame(id);
       if (typeof res === "string") {
@@ -53,7 +61,8 @@ export default function LoadGame() {
 
     if (gameFromUrl) {
       const orientation = !(
-        gameFromUrl.site === "Chesskit.org" && gameFromUrl.black.name === "You"
+        gameFromUrl.site === "playpea.wgcodings.com" &&
+        gameFromUrl.black.name === "You"
       );
       resetAndSetGamePgn(gameFromUrl.pgn, orientation, gameFromUrl.eval);
     } else if (typeof lichessGameId === "string" && !!lichessGameId) {

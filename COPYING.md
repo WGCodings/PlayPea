@@ -1,4 +1,11 @@
-# Copying Chesskit
+# Copying PlayPea
+
+PlayPea is a modified version of [Chesskit](https://github.com/GuillaumeSD/Chesskit)
+by GuillaumeSD and contributors, distributed under the same license (GNU AGPL
+v3). The Pea engine builds in `public/engines/pea/` are compiled from
+[WGCodings/Pea](https://github.com/WGCodings/Pea).
+
+## Chesskit
 
 Any file in this project that does not state otherwise and is not listed as an
 exception below is part of chesskit.

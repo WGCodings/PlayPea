@@ -20,7 +20,8 @@ export const parseEvaluationResults = (
 
     if (result.startsWith("info")) {
       const pv = getResultPv(result, fen);
-      const multiPv = getResultProperty(result, "multipv");
+      // Pea doesn't print "multipv" when showing a single line.
+      const multiPv = getResultProperty(result, "multipv") ?? "1";
       const depth = getResultProperty(result, "depth");
       if (!pv || !multiPv || !depth) continue;
 

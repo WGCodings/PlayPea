@@ -61,7 +61,7 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
 
           <Image
             src="/favicon-32x32.png"
-            alt="Chesskit logo"
+            alt="Pea logo"
             width={32}
             height={32}
           />
@@ -76,22 +76,24 @@ export default function NavBar({ darkMode, switchDarkMode }: Props) {
                 fontSize: { xs: "1rem", sm: "1.25rem" },
               }}
             >
-              Chesskit
+              PlayPea
             </Typography>
           </NavLink>
 
           <StyledIconButtonLink
-            href="https://discord.gg/Yr99abAcUr"
+            href="https://github.com/WGCodings/Pea"
             target="_blank"
             rel="noopener noreferrer"
+            title="The Pea chess engine"
           >
             <IconButton color="inherit" component="span">
-              <Icon icon="ri:discord-fill" />
+              <Icon icon="mdi:sprout" />
             </IconButton>
           </StyledIconButtonLink>
 
           <StyledIconButtonLink
-            href="https://github.com/GuillaumeSD/Chesskit"
+            href="https://github.com/WGCodings/PlayPea"
+            title="PlayPea source code"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ ml: "min(0.6rem, 0.8vw)" }}

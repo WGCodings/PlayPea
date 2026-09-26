@@ -6,6 +6,17 @@ import {
 import { MoveClassification } from "@/types/enums";
 import { openings } from "@/data/openings";
 import { getIsPieceSacrifice, isSimplePieceRecapture } from "@/lib/chess";
+import { Chess } from "chess.js";
+
+// A move is forced when it was the only legal move. (Pea prints a single PV
+// line, so the number of engine lines can't be used for this.)
+const isOnlyLegalMove = (fen: string): boolean => {
+  try {
+    return new Chess(fen).moves().length === 1;
+  } catch {
+    return false;
+  }
+};
 
 export const getMovesClassification = (
   rawPositions: PositionEval[],
@@ -31,7 +42,7 @@ export const getMovesClassification = (
 
     const prevPosition = rawPositions[index - 1];
 
-    if (prevPosition.lines.length === 1) {
+    if (isOnlyLegalMove(fens[index - 1])) {
       return {
         ...rawPosition,
         opening: currentOpening,

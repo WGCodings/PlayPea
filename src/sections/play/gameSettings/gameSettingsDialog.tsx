@@ -21,29 +21,34 @@ import {
 import { useAtomLocalStorage } from "@/hooks/useAtomLocalStorage";
 import { useAtom, useSetAtom } from "jotai";
 import {
-  engineEloAtom,
+  engineMoveTimeAtom,
   playerColorAtom,
   isGameInProgressAtom,
   gameAtom,
   enginePlayNameAtom,
 } from "../states";
 import { useChessActions } from "@/hooks/useChessActions";
-import { logAnalyticsEvent } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
-import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
-import { DEFAULT_ENGINE, ENGINE_LABELS, STRONGEST_ENGINE } from "@/constants";
+import { DEFAULT_ENGINE, ENGINE_LABELS } from "@/constants";
 import { getGameFromPgn } from "@/lib/chess";
+import { PEA_VERSIONS, isPeaVersionId } from "@/data/peaVersions";
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
+// Thinking time options in ms, indexed by the slider value.
+const MOVE_TIMES = [100, 250, 500, 1000, 2000, 3000, 5000, 10000];
+
+const formatMoveTime = (ms: number) =>
+  ms < 1000 ? `${ms} ms` : `${ms / 1000} s`;
+
 export default function GameSettingsDialog({ open, onClose }: Props) {
-  const [engineElo, setEngineElo] = useAtomLocalStorage(
-    "engine-elo",
-    engineEloAtom
+  const [moveTime, setMoveTime] = useAtomLocalStorage(
+    "engine-move-time",
+    engineMoveTimeAtom
   );
   const [engineName, setEngineName] = useAtomLocalStorage(
     "engine-play-name",
@@ -55,6 +60,11 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
   const [startingPositionInput, setStartingPositionInput] = useState("");
   const [parsingError, setParsingError] = useState("");
 
+  const moveTimeIndex = Math.max(
+    0,
+    MOVE_TIMES.findIndex((t) => t >= moveTime)
+  );
+
   const handleGameStart = () => {
     setParsingError("");
 
@@ -64,20 +74,16 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
         ? getGameFromPgn(input).fen()
         : input || undefined;
 
+      const engineLabel = ENGINE_LABELS[engineName];
+
       resetGame({
         white: {
-          name:
-            playerColor === Color.White
-              ? "You"
-              : ENGINE_LABELS[engineName].small,
-          rating: playerColor === Color.White ? undefined : engineElo,
+          name: playerColor === Color.White ? "You" : engineLabel.small,
+          rating: playerColor === Color.White ? undefined : engineLabel.elo,
         },
         black: {
-          name:
-            playerColor === Color.Black
-              ? "You"
-              : ENGINE_LABELS[engineName].small,
-          rating: playerColor === Color.Black ? undefined : engineElo,
+          name: playerColor === Color.Black ? "You" : engineLabel.small,
+          rating: playerColor === Color.Black ? undefined : engineLabel.elo,
         },
         fen: startingFen,
       });
@@ -93,22 +99,10 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
 
     setIsGameInProgress(true);
     handleClose();
-
-    logAnalyticsEvent("play_game", {
-      engine: engineName,
-      engineElo,
-      playerColor,
-    });
   };
 
   useEffect(() => {
-    if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
-        setEngineName(EngineName.Stockfish16_1Lite);
-      } else {
-        setEngineName(EngineName.Stockfish11);
-      }
-    }
+    if (!isPeaVersionId(engineName)) setEngineName(DEFAULT_ENGINE);
   }, [setEngineName, engineName]);
 
   const handleClose = () => {
@@ -124,12 +118,16 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
       </DialogTitle>
       <DialogContent sx={{ paddingBottom: 0 }}>
         <Typography>
-          {ENGINE_LABELS[DEFAULT_ENGINE].small} is the default engine if your
-          device support its requirements. It offers the best balance between
-          speed and strength. {ENGINE_LABELS[STRONGEST_ENGINE].small} is the
-          strongest engine available, note that it requires a one time download
-          of 75MB.
+          Pick a version of Pea to play against. Early versions are much weaker,
+          so they make good sparring partners. The engine runs entirely in your
+          browser, on your own device.
         </Typography>
+        {!isEngineSupported() && (
+          <Typography color="salmon" marginTop={2}>
+            Your browser doesn&apos;t support WebAssembly SIMD, which Pea needs.
+            Please use a recent version of Chrome, Firefox, Edge or Safari.
+          </Typography>
+        )}
         <Grid
           marginTop={4}
           container
@@ -140,23 +138,19 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
         >
           <Grid container justifyContent="center" size={12}>
             <FormControl variant="outlined">
-              <InputLabel id="dialog-select-label">Bot's engine</InputLabel>
+              <InputLabel id="dialog-select-label">Pea version</InputLabel>
               <Select
                 labelId="dialog-select-label"
                 id="dialog-select"
                 displayEmpty
-                input={<OutlinedInput label="Engine" />}
-                value={engineName}
+                input={<OutlinedInput label="Pea version" />}
+                value={isPeaVersionId(engineName) ? engineName : DEFAULT_ENGINE}
                 onChange={(e) => setEngineName(e.target.value as EngineName)}
                 sx={{ width: 280, maxWidth: "100%" }}
               >
-                {Object.values(EngineName).map((engine) => (
-                  <MenuItem
-                    key={engine}
-                    value={engine}
-                    disabled={!isEngineSupported(engine)}
-                  >
-                    {ENGINE_LABELS[engine].full}
+                {PEA_VERSIONS.map(({ id }) => (
+                  <MenuItem key={id} value={id}>
+                    {ENGINE_LABELS[id].full}
                   </MenuItem>
                 ))}
               </Select>
@@ -164,13 +158,16 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
           </Grid>
 
           <Slider
-            label="Bot Elo rating"
-            value={engineElo}
-            setValue={setEngineElo}
-            min={1320}
-            max={3190}
-            step={10}
-            marksFilter={374}
+            label={`Thinking time per move: ${formatMoveTime(
+              MOVE_TIMES[moveTimeIndex]
+            )}`}
+            value={moveTimeIndex}
+            setValue={(index: number) => setMoveTime(MOVE_TIMES[index])}
+            min={0}
+            max={MOVE_TIMES.length - 1}
+            step={1}
+            marksFilter={1}
+            marksLabel={(index: number) => formatMoveTime(MOVE_TIMES[index])}
           />
 
           <FormGroup>
@@ -221,7 +218,11 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
         >
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleGameStart}>
+        <Button
+          variant="contained"
+          onClick={handleGameStart}
+          disabled={!isEngineSupported()}
+        >
           Start game
         </Button>
       </DialogActions>

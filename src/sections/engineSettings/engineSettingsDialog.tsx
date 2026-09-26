@@ -26,16 +26,11 @@ import ArrowOptions from "./arrowOptions";
 import { useAtomLocalStorage } from "@/hooks/useAtomLocalStorage";
 import { useEffect } from "react";
 import { isEngineSupported } from "@/lib/engine/shared";
-import { Stockfish16_1 } from "@/lib/engine/stockfish16_1";
+import { PEA_VERSIONS, isPeaVersionId } from "@/data/peaVersions";
 import { useAtom } from "jotai";
 import { boardHueAtom, pieceSetAtom } from "@/components/board/states";
 import Image from "next/image";
-import {
-  DEFAULT_ENGINE,
-  ENGINE_LABELS,
-  PIECE_SETS,
-  STRONGEST_ENGINE,
-} from "@/constants";
+import { DEFAULT_ENGINE, ENGINE_LABELS, PIECE_SETS } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
 
 interface Props {
@@ -64,13 +59,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
   const isDarkMode = theme.palette.mode === "dark";
 
   useEffect(() => {
-    if (!isEngineSupported(engineName)) {
-      if (Stockfish16_1.isSupported()) {
-        setEngineName(EngineName.Stockfish16_1Lite);
-      } else {
-        setEngineName(EngineName.Stockfish11);
-      }
-    }
+    if (!isPeaVersionId(engineName)) setEngineName(DEFAULT_ENGINE);
   }, [setEngineName, engineName]);
 
   return (
@@ -93,13 +82,15 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             size={{ xs: 12, sm: 7, md: 8 }}
           >
             <Typography variant="body2">
-              {ENGINE_LABELS[DEFAULT_ENGINE].small} is the default engine if
-              your device support its requirements. It offers the best balance
-              between speed and strength.{" "}
-              {ENGINE_LABELS[STRONGEST_ENGINE].small} is the strongest engine
-              available, note that it requires a one time download of{" "}
-              {ENGINE_LABELS[STRONGEST_ENGINE].sizeMb}MB and is much more
-              compute intensive.
+              Choose which version of Pea analyses your games. The newest
+              version is the strongest. Everything runs in your browser, on your
+              own device.
+              {!isEngineSupported() && (
+                <Typography component="span" color="salmon" display="block">
+                  Your browser doesn&apos;t support WebAssembly SIMD, which Pea
+                  needs.
+                </Typography>
+              )}
             </Typography>
           </Grid>
 
@@ -115,17 +106,13 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
                 id="dialog-select"
                 displayEmpty
                 input={<OutlinedInput label="Engine" />}
-                value={engineName}
+                value={isPeaVersionId(engineName) ? engineName : DEFAULT_ENGINE}
                 onChange={(e) => setEngineName(e.target.value as EngineName)}
                 sx={{ width: 280, maxWidth: "100%" }}
               >
-                {Object.values(EngineName).map((engine) => (
-                  <MenuItem
-                    key={engine}
-                    value={engine}
-                    disabled={!isEngineSupported(engine)}
-                  >
-                    {ENGINE_LABELS[engine].full}
+                {PEA_VERSIONS.map(({ id }) => (
+                  <MenuItem key={id} value={id}>
+                    {ENGINE_LABELS[id].full}
                   </MenuItem>
                 ))}
               </Select>
@@ -145,10 +132,16 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             label="Number of lines"
             value={multiPv}
             setValue={setMultiPv}
-            min={2}
+            min={1}
             max={6}
             marksFilter={1}
             size={6}
+            infoContent={
+              <>
+                Current Pea versions report a single best line. Extra lines only
+                appear with versions that support MultiPV.
+              </>
+            }
           />
 
           <ArrowOptions />
@@ -211,7 +204,7 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
             size={{ xs: 12, md: 11 }}
           >
             <Slider
-              label="Number of threads"
+              label="Parallel engines for game review"
               value={engineWorkersNb}
               setValue={setEngineWorkersNb}
               min={1}
@@ -219,13 +212,14 @@ export default function EngineSettingsDialog({ open, onClose }: Props) {
               marksFilter={1}
               infoContent={
                 <>
-                  More threads means faster analysis, but only if your device
-                  can handle them, otherwise it may have the opposite effect.
-                  The estimated optimal value for your device is{" "}
-                  {getRecommendedWorkersNb()}. Due to privacy restrictions in
-                  some browsers, this value might be underestimated. Don't
-                  hesitate to try different values to find the best one for your
-                  device.
+                  Pea runs single-threaded; game review starts this many copies
+                  of it to analyse positions in parallel. More means faster
+                  review, but only if your device can handle them, otherwise it
+                  may have the opposite effect. The estimated optimal value for
+                  your device is {getRecommendedWorkersNb()}. Due to privacy
+                  restrictions in some browsers, this value might be
+                  underestimated. Don't hesitate to try different values to find
+                  the best one for your device.
                 </>
               }
             />

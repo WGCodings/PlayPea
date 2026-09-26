@@ -1,15 +1,24 @@
-import { useAtomValue } from "jotai";
-import { gameAtom, isGameInProgressAtom, playerColorAtom } from "./states";
+import { useAtomValue, useSetAtom } from "jotai";
+import {
+  enginePlayNameAtom,
+  gameAtom,
+  isGameInProgressAtom,
+  playerColorAtom,
+} from "./states";
 import { Button, Grid2 as Grid, Typography } from "@mui/material";
 import { Color } from "@/types/enums";
 import { setGameHeaders } from "@/lib/chess";
 import { useGameDatabase } from "@/hooks/useGameDatabase";
 import { useRouter } from "next/router";
+import { DATABASE_ENABLED, ENGINE_LABELS } from "@/constants";
+import { pendingAnalysisGameAtom } from "../analysis/states";
 
 export default function GameRecap() {
   const game = useAtomValue(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
+  const engineName = useAtomValue(enginePlayNameAtom);
+  const setPendingAnalysisGame = useSetAtom(pendingAnalysisGameAtom);
   const { addGame } = useGameDatabase();
   const router = useRouter();
 
@@ -18,7 +27,10 @@ export default function GameRecap() {
   const getResultLabel = () => {
     if (game.isCheckmate()) {
       const winnerColor = game.turn() === "w" ? Color.Black : Color.White;
-      const winnerLabel = winnerColor === playerColor ? "You" : "Stockfish";
+      const winnerLabel =
+        winnerColor === playerColor
+          ? "You"
+          : (ENGINE_LABELS[engineName]?.small ?? "Pea");
       return `${winnerLabel} won by checkmate !`;
     }
     if (game.isInsufficientMaterial()) return "Draw by insufficient material";
@@ -33,9 +45,19 @@ export default function GameRecap() {
     const gameToAnalysis = setGameHeaders(game, {
       resigned: !game.isGameOver() ? playerColor : undefined,
     });
-    const gameId = await addGame(gameToAnalysis);
 
-    router.push({ pathname: "/", query: { gameId } });
+    if (DATABASE_ENABLED) {
+      const gameId = await addGame(gameToAnalysis);
+      router.push({ pathname: "/", query: { gameId } });
+      return;
+    }
+
+    // Without the database, hand the game over in memory.
+    setPendingAnalysisGame({
+      pgn: gameToAnalysis.pgn(),
+      orientation: playerColor === Color.White,
+    });
+    router.push({ pathname: "/" });
   };
 
   return (

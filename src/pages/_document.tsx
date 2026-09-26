@@ -24,35 +24,35 @@ export default function Document() {
         />
         <meta
           name="description"
-          content="Analyze your chess games for free on any device with Stockfish!"
+          content="Play and analyse against every version of the Pea chess engine, right in your browser."
         />
 
         {/* OG (Social networks) */}
-        <meta property="og:title" content="chesskit.org" />
+        <meta property="og:title" content="PlayPea" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="chesskit.org" />
-        <meta property="og:url" content="https://chesskit.org/" />
+        <meta property="og:site_name" content="PlayPea" />
+        <meta property="og:url" content="https://playpea.wgcodings.com/" />
         <meta
           property="og:image"
-          content="https://chesskit.org/social-networks-1200x630.png"
+          content="https://playpea.wgcodings.com/social-networks-1200x630.png"
         />
         <meta
           property="og:description"
-          content="Analyze your chess games for free on any device with Stockfish!"
+          content="Play and analyse against every version of the Pea chess engine, right in your browser."
         />
 
         {/* Twitter */}
-        <meta name="twitter:title" content="chesskit.org" />
-        <meta name="twitter:domain" content="chesskit.org" />
-        <meta name="twitter:url" content="https://chesskit.org/" />
+        <meta name="twitter:title" content="PlayPea" />
+        <meta name="twitter:domain" content="playpea.wgcodings.com" />
+        <meta name="twitter:url" content="https://playpea.wgcodings.com/" />
         <meta
           name="twitter:description"
-          content="Analyze your chess games for free on any device with Stockfish!"
+          content="Play and analyse against every version of the Pea chess engine, right in your browser."
         />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content="https://chesskit.org/social-networks-1200x630.png"
+          content="https://playpea.wgcodings.com/social-networks-1200x630.png"
         />
       </Head>
       <body>

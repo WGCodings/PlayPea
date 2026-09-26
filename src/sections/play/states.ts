@@ -1,4 +1,4 @@
-import { DEFAULT_ENGINE } from "@/constants";
+import { DEFAULT_ENGINE, DEFAULT_MOVE_TIME_MS } from "@/constants";
 import { Color, EngineName } from "@/types/enums";
 import { CurrentPosition } from "@/types/eval";
 import { Chess } from "chess.js";
@@ -8,5 +8,5 @@ export const gameAtom = atom(new Chess());
 export const gameDataAtom = atom<CurrentPosition>({});
 export const playerColorAtom = atom<Color>(Color.White);
 export const enginePlayNameAtom = atom<EngineName>(DEFAULT_ENGINE);
-export const engineEloAtom = atom(1320);
+export const engineMoveTimeAtom = atom(DEFAULT_MOVE_TIME_MS);
 export const isGameInProgressAtom = atom(false);

@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import {
-  engineEloAtom,
+  engineMoveTimeAtom,
   gameAtom,
   playerColorAtom,
   isGameInProgressAtom,
@@ -25,7 +25,7 @@ export default function BoardContainer() {
   const { white, black } = usePlayersData(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const { playMove } = useChessActions(gameAtom);
-  const engineElo = useAtomValue(engineEloAtom);
+  const engineMoveTime = useAtomValue(engineMoveTimeAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
 
   const gameFen = game.fen();
@@ -42,8 +42,9 @@ export default function BoardContainer() {
         return;
       }
 
-      const timePromise = sleep(1000);
-      const move = await engine.getEngineNextMove(gameFen, engineElo);
+      // Don't reply instantly, even with a very short thinking time.
+      const timePromise = sleep(500);
+      const move = await engine.getEngineNextMove(gameFen, engineMoveTime);
       await timePromise;
 
       if (move) playMove(uciMoveParams(move));
